@@ -56,4 +56,9 @@ if __name__ == '__main__':
     stock_list = ['AAPL']
     p = Program(stock_list)
     best_stock = p.get_best_stock()
-    print('currently the best stock to use is ' best_stock.stock_name, 'with hype score of', best_stock.get_stock_hype())
+    print("---------------------------------------------")
+    print('currently the best stock to use is ', 
+          best_stock.stock_name, 'with hype score of', round(best_stock.get_stock_hype(), 3))
+    print("---------------------------------------------")
+    # import nltk
+    # nltk.download('vader_lexicon')
