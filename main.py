@@ -56,4 +56,4 @@ if __name__ == '__main__':
     stock_list = ['AAPL']
     p = Program(stock_list)
     best_stock = p.get_best_stock()
-    print(best_stock.stock_name, best_stock.get_stock_hype())
+    print('currently the best stock to use is ' best_stock.stock_name, 'with hype score of', best_stock.get_stock_hype())
