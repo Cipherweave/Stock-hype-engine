@@ -1,7 +1,17 @@
 from urllib.request import urlopen, Request
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup # type: ignore
 from news import News
 from stocks import Stock
+# import finviz
+# from finvizfinance.quote import finvizfinance # type: ignore
+# from finvizfinance.news import News
+from finvizfinance_.quote import finvizfinance
+import yfinance as yf
+from datetime import datetime
+import pandas as pd
+from finvizAPI import FinViz
+import time
+
 
 
 class Program:
@@ -11,36 +21,42 @@ class Program:
         """ Initialize a program
 
         """
-        finviz = 'https://finviz.com/quote.ashx?t='
-        new_tables = {}
+        x = 0
+        stock_finviz = FinViz()
+        self.stocks = []
         for stock in stock_list:
-            url = finviz + stock
-            req = Request(url, headers={'User-Agent': 'me'})
-            response = urlopen(req)
-            html = BeautifulSoup(response, 'html.parser')
-            new_table = html.find(id='news-table')
-            new_tables[stock] = new_table
+            
+            
+            all_valumes, all_opens, all_closes, all_dates = stock_finviz.get_all_data('i1', stock)
 
-        # aapl_data = new_tables['AAPL']
-        # aapl_rows = aapl_data.findAll('tr')
-
-        self.stocks = []  # list of Stock objects
-        for stock, news_table in new_tables.items():
-            s = Stock(stock)
-            for row in news_table.findAll('tr'):
-
-                title = row.a.get_text()
-                date = row.td.text.split(" ")
-                link = row.a.get('href')
-
-                if len(date) == 1:
-                    time = date[0]
-                else:
-                    time = date[1]
-                    date = date[0]
-                k = News(title, time, date, link)
-                s.add_news(News(title, time, date, link))
+            stock_finvizfinance = finvizfinance(stock) # object for news
+            news_df = stock_finvizfinance.ticker_news() # news dataframe
+            s = Stock(stock) # object for stock
+            for index, row in news_df.iterrows():
+                news_title = row['Title']
+                news_date = row['Date']
+                news_date = news_date.round("1min")
+                news_link = row['Link']
+                for date_index in range(len(all_dates)):
+                    if news_date == all_dates[date_index]:
+                        if len(all_opens) - 1 > date_index:     
+                            news = News(news_title, news_date, news_link, 
+                                        all_opens[date_index - 1], 
+                                        all_opens[date_index + 1], 
+                                        all_valumes[date_index - 1],
+                                        all_valumes[date_index + 1])
+                            s.add_news(news)                                              
+                        else:
+                            news = News(news_title, news_date, news_link,
+                                         all_opens[date_index - 1],
+                                        all_opens[date_index + 1], 
+                                        all_valumes[date_index - 1], 
+                                        all_valumes[date_index])
+                            s.add_news(news)   
+                        break     
+            s.timestamp = all_dates[-1]      
             self.stocks.append(s)
+        
 
     def get_best_stock(self) -> Stock:
         """ Return the stock with the highest hype level
@@ -50,15 +66,31 @@ class Program:
             if stock.get_stock_hype() > best_stock.get_stock_hype():
                 best_stock = stock
         return best_stock
+    
+
+    
+# TODO how to get the data with API instead of HTML scraping.   CHECK!
+# TODO get the hourly interval Score.
+# TODO get the last news score.
+# TODO get the todays news score.
+# TODO use API script for finviz. Add change in stock attribute for every news atribute    CHECK!
+# TODO pyqt5 for visualazion.
 
 
 if __name__ == '__main__':
-    stock_list = ['AAPL']
+    start_time = time.time()
+    stock_list = ['NVOS', 'GPS', 'ADRT', 'SMMT', 'WBUY']
     p = Program(stock_list)
     best_stock = p.get_best_stock()
-    print("---------------------------------------------")
-    print('currently the best stock to use is ', 
+    print("-------------------------------------------------------------------")
+    print('Currently the best stock to use is', 
           best_stock.stock_name, 'with hype score of', round(best_stock.get_stock_hype(), 3))
-    print("---------------------------------------------")
-    # import nltk
-    # nltk.download('vader_lexicon')
+    print("-------------------------------------------------------------------")
+    end_time = time.time()
+
+    for stock in p.stocks:
+        print(stock.stock_name, stock.timestamp, '----------------------------')
+        for news in stock.news:
+            print(news.title, news.date, news.price_before, news.price_after, news.valume_before, news.valume_after)
+
+    print('Time taken:', end_time - start_time)

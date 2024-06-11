@@ -4,6 +4,7 @@ class Stock:
     def __init__(self, stock_name: str) -> None:
         """ Initialize a stock object
         """
+        self.timestamp = None
         self.stock_name = stock_name
         self.news = []
 
@@ -25,6 +26,8 @@ class Stock:
     def get_stock_hype(self) -> float:
         """ Return the hype level of the stock
         """
+        if len(self.news) == 0:
+            return 0
         total = 0
         for news in self.news:
             total += news.get_sentiment()
