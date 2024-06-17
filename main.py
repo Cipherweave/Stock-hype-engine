@@ -11,6 +11,7 @@ from datetime import datetime
 import pandas as pd
 from finvizAPI import FinViz
 import time
+from typing import Optional
 
 
 
@@ -21,11 +22,10 @@ class Program:
         """ Initialize a program
 
         """
-        x = 0
         stock_finviz = FinViz()
         self.stocks = []
-        for stock in stock_list:
-            
+
+        for stock in stock_list:    
             
             all_valumes, all_opens, all_closes, all_dates = stock_finviz.get_all_data('i1', stock)
 
@@ -58,15 +58,45 @@ class Program:
             self.stocks.append(s)
         
 
-    def get_best_stock(self) -> Stock:
+    def get_best_stock(self) -> Optional[Stock]:
         """ Return the stock with the highest hype level
         """
-        best_stock = self.stocks[0]
+        if len(self.stocks) == 0:
+            print('No stocks found')
+            return None
+        stocks_with_news = []
         for stock in self.stocks:
+            if len(stock.news) > 0:
+                stocks_with_news.append(stock)
+        if len(stocks_with_news) == 0:
+            print('No stocks found with news')
+            return None
+        best_stock = stocks_with_news[0]
+        for stock in stocks_with_news:
             if stock.get_stock_hype() > best_stock.get_stock_hype():
                 best_stock = stock
         return best_stock
     
+    def get_best_stock_today(self) -> Optional[Stock]:
+        """ Return the stock with the highest hype level today
+        """
+        if len(self.stocks) == 0:
+            print('No stocks found')
+            return None
+        stocks_with_news = []
+        for stock in self.stocks:
+            for news in stock.news:
+                if news.date.date() == datetime.today().date():
+                    stocks_with_news.append(stock)
+                    break
+        if len(stocks_with_news) == 0:
+            print('No stocks found with news today')
+            return None
+        best_stock = stocks_with_news[0]
+        for stock in stocks_with_news:
+            if stock.get_stock_hype_today() > best_stock.get_stock_hype_today():
+                best_stock = stock
+        return best_stock
 
     
 # TODO how to get the data with API instead of HTML scraping.   CHECK!
@@ -74,23 +104,34 @@ class Program:
 # TODO get the last news score.
 # TODO get the todays news score.
 # TODO use API script for finviz. Add change in stock attribute for every news atribute    CHECK!
-# TODO pyqt5 for visualazion.
+# TODO pyqt5 (Package) for visualazion. tableau (Package)
 
 
 if __name__ == '__main__':
     start_time = time.time()
-    stock_list = ['NVOS', 'GPS', 'ADRT', 'SMMT', 'WBUY']
+    stock_list = ['NVOS', 'GPS', 'ADRT', 'SMMT', 'WBUY', 'AAPL']
     p = Program(stock_list)
     best_stock = p.get_best_stock()
-    print("-------------------------------------------------------------------")
-    print('Currently the best stock to use is', 
-          best_stock.stock_name, 'with hype score of', round(best_stock.get_stock_hype(), 3))
-    print("-------------------------------------------------------------------")
+    # print("-------------------------------------------------------------------")
+    # print('Currently the best stock to use is', 
+    #       best_stock.stock_name, 'with hype score of', round(best_stock.get_stock_hype(), 3))
+    # print("-------------------------------------------------------------------")
+
+
+    best_stock_today = p.get_best_stock_today()
+    if best_stock_today:
+        print("-------------------------------------------------------------------")
+        print('Currently the best stock to use today is', 
+            best_stock_today.stock_name, 'with hype score of', round(best_stock_today.get_stock_hype_today(), 3))
+        print("-------------------------------------------------------------------")
     end_time = time.time()
 
-    for stock in p.stocks:
-        print(stock.stock_name, stock.timestamp, '----------------------------')
-        for news in stock.news:
-            print(news.title, news.date, news.price_before, news.price_after, news.valume_before, news.valume_after)
+    # for stock in p.stocks:
+    #     print(stock.stock_name, stock.timestamp, '----------------------------')
+    #     for news in stock.news:
+    #         if news.date.date() == datetime.today().date():
+    #             print(news.title, news.date, news.price_before, news.price_after, news.valume_before, news.valume_after)
+    #     for news in stock.news:
+    #         print(news.title, news.date, news.price_before, news.price_after, news.valume_before, news.valume_after)
 
     print('Time taken:', end_time - start_time)

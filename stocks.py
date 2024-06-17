@@ -34,4 +34,19 @@ class Stock:
         return total / len(self.news)
 
 
+    def get_stock_hype_today(self) -> float:
+        """ Return the hype level of the stock today
+        """
+        if len(self.news) == 0:
+            return 0
+        total = 0
+        count = 0
+        for news in self.news:
+            if news.date.date() == self.timestamp.date():
+                total += news.get_sentiment()
+                count += 1
+        if count == 0:
+            return 0
+        return total / count
+
 

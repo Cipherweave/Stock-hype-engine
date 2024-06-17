@@ -1,8 +1,9 @@
-import datetime
+# import datetime
 import logging
 # from datetime import datetime
 from typing import Tuple, Union
 import requests
+from datetime import datetime
 
 
 class FinViz():
@@ -62,20 +63,11 @@ class FinViz():
             raise Exception("No response from server")
 
         json_response = response.json()
+        
 
-
-        # Convert the date to human readable format
-        for i in range(len(json_response["date"])):
-            json_response["date"][i] = datetime.datetime.utcfromtimestamp(int(json_response["date"][i]))
-   
-
-        # print(json_response)
-        # self._time = (json_response["date"][-2])
-        # self._volume = int(json_response["volume"][-2])
-        # self._price = float(json_response["lastOpen"])
-        # self._logger.info(f"SUCCESSFUL call: ticker: {ticker}, time: {self._time}, volume: {self._volume}, price: {self._price}")
-        # return self._time, self._volume, self._price
         return json_response
+    
+
     
     def get_all_data(self, time_frame: str = "i1", ticker: str = "EURUSD"):
 
@@ -113,33 +105,31 @@ class FinViz():
             raise Exception("No response from server")
 
         json_response = response.json()
-        # self._time = int(json_response["date"][:-2])
-        # self._volume = int(json_response["volume"][:-2])
-        # self._price = float(json_response["lastOpen"])
-        # return self._time, self._volume, self._price
+        
         all_volumes = [float(i) for i in json_response["volume"]]
         all_opens = [float(i) for i in json_response["open"]]
         all_closes = [float(i) for i in json_response["close"]]
         all_dates = [float(i) for i in json_response["date"]]
-        
-        for date in range(len(all_dates)):
-            all_dates[date] = datetime.datetime.utcfromtimestamp(all_dates[date])
+
+        # get the current time 
+        current_time = datetime.now()
+        # get the UTC time
+        utc_time = datetime.utcnow()
+        # find out if we should add or subtract the time difference and whether should add the to the UTC or subtract the time difference
+        if current_time > utc_time:
+            time_difference = current_time - utc_time
+            for date in range(len(all_dates)):
+                all_dates[date] = datetime.utcfromtimestamp(all_dates[date]) + time_difference
+        else:
+            time_difference = utc_time - current_time
+            for date in range(len(all_dates)):
+                all_dates[date] = datetime.utcfromtimestamp(all_dates[date]) - time_difference
+
+
         return all_volumes, all_opens, all_closes, all_dates
 
 
 if __name__ == "__main__":
 
     test = FinViz()
-    # print(test.get_data())
-    # test.get_data()
-    all_valumes, all_opens, all_closes, all_dates = test.get_all_data("i1", "AAPL")
-    print(all_opens[1], all_closes[0])
-    print(all_dates[-1])
-    print(datetime.datetime.now()) # time now
-    data = test.get_data("i1", "AAPL")
-    for i in range(len(data["date"])):
-        print(data["date"][i], data["open"][i], data["close"][i])
-    # time, volume, price = test.get_data()
-    # print("Time:", time, "Volume:", volume, "Price:", price, sep="\n")
-
-    # print("Human readable Time:", test.get_time())
+  
