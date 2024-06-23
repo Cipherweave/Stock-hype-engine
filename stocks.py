@@ -16,7 +16,7 @@ class Stock:
     def add_news(self, news: object) -> None:
         """ Add news to the news list
         """
-        self.news.append(news)
+        self.news.insert(0, news)
 
     def get_news(self) -> list:
         """ Return the news list
@@ -48,5 +48,15 @@ class Stock:
         if count == 0:
             return 0
         return total / count
+    
+    def get_last_news_stock_hype(self) -> float:
+        """ Return the hype level of the last news of this stock
+        """
+        if len(self.news) == 0:
+            return 0
+        return self.news[0].get_sentiment()
+    
+    # def get_current_
+        
 
 

@@ -16,7 +16,6 @@ class News:
     valume_after: volume of the stock one minute after the news article
     """
     title: str
-    date: str
     link: str
     date: datetime
     price_before: float
@@ -40,7 +39,15 @@ class News:
         """ Return a string representation
 
         """
-        return f"{self.timestamp} {self.title} {self.link}"
+        return f"{self.date} {self.title} {self.link}"
+    
+    def __eq__(self, value: object) -> bool:
+        """ Return True if the news articles are equal
+
+        """
+        if not isinstance(value, News):
+            return False
+        return self.title == value.title and self.date == value.date and self.link == value.link
 
     def get_sentiment(self) -> float:
         """ Return the sentiment of the news article

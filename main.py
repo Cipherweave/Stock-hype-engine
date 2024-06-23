@@ -34,22 +34,21 @@ class Program:
             s = Stock(stock) # object for stock
             for index, row in news_df.iterrows():
                 news_title = row['Title']
-                news_date = row['Date']
-                news_date = news_date.round("1min")
+                news_date = row['Date'].round("1min")
                 news_link = row['Link']
                 for date_index in range(len(all_dates)):
                     if news_date == all_dates[date_index]:
-                        if len(all_opens) - 1 > date_index:     
+                        if len(all_opens) - 1 > date_index:  # if the date is not the last date   
                             news = News(news_title, news_date, news_link, 
                                         all_opens[date_index - 1], 
                                         all_opens[date_index + 1], 
                                         all_valumes[date_index - 1],
                                         all_valumes[date_index + 1])
                             s.add_news(news)                                              
-                        else:
+                        else: # if the date is the last date
                             news = News(news_title, news_date, news_link,
-                                         all_opens[date_index - 1],
-                                        all_opens[date_index + 1], 
+                                        all_opens[date_index - 1],
+                                        all_opens[date_index], 
                                         all_valumes[date_index - 1], 
                                         all_valumes[date_index])
                             s.add_news(news)   
@@ -97,6 +96,62 @@ class Program:
             if stock.get_stock_hype_today() > best_stock.get_stock_hype_today():
                 best_stock = stock
         return best_stock
+    
+    def update_stocks(self) -> list[Stock]:
+
+        stock_finviz = FinViz()
+        updated_stocks = []
+        for stock in self.stocks:
+            # print(stock.stock_name, stock.timestamp, '----------------------------')
+            stock_finvizfinance = finvizfinance(stock.stock_name) # object for news
+            news_df = stock_finvizfinance.ticker_news()
+            all_valumes, all_opens, all_closes, all_dates = stock_finviz.get_all_data('i1', stock.stock_name)
+            new_news_lst = []
+            new_news = None
+
+            for index, row in news_df.iterrows():
+
+                # ------ CREATE A NEW NEWS OBJECT ------
+                news_title = row['Title']
+                news_date = row['Date'].round("1min")
+                news_link = row['Link']
+                for date_index in range(len(all_dates)):
+                    
+                    if news_date == all_dates[date_index]:
+                        if len(all_opens) - 1 > date_index:  # if the date is not the last date   
+                            new_news = News(news_title, news_date, news_link, 
+                                        all_opens[date_index - 1], 
+                                        all_opens[date_index + 1], 
+                                        all_valumes[date_index - 1],
+                                        all_valumes[date_index + 1])                                            
+                        else: # if the date is the last date
+                            new_news = News(news_title, news_date, news_link,
+                                        all_opens[date_index - 1],
+                                        all_opens[date_index], 
+                                        all_valumes[date_index - 1], 
+                                        all_valumes[date_index])
+                        break
+                # --------------------------------------
+                if new_news is None:
+                    break
+                if stock.news == []:
+                    new_news_lst.append(new_news)
+                elif new_news == stock.news[-1]:
+                    break
+                else:
+                    new_news_lst.append(new_news)
+                
+            stock.news.extend(new_news_lst)
+            stock.timestamp = all_dates[-1]
+            if new_news_lst:
+                print('New news added for', stock.stock_name)
+                updated_stocks.append(stock)
+        print("All Stocks Updated by: ", datetime.now().strftime("%H:%M:%S"))
+        return updated_stocks
+                        
+                        
+
+
 
     
 # TODO how to get the data with API instead of HTML scraping.   CHECK!
@@ -110,28 +165,70 @@ class Program:
 if __name__ == '__main__':
     start_time = time.time()
     stock_list = ['NVOS', 'GPS', 'ADRT', 'SMMT', 'WBUY', 'AAPL']
-    p = Program(stock_list)
-    best_stock = p.get_best_stock()
+    super_crowded_stocks = ["AAPL", "TSLA", "AMZN", "MSFT", "NVDA", "GOOGL", "META", "NFLX", "AMD", "BA"]
+    p = Program(super_crowded_stocks)
+    # for i in p.stocks:
+    #     print(i.stock_name, i.news[-1].title, "stock time:",i.timestamp, "news time:", i.news[-1].date)
+
+ 
+    while True:
+        updated_stocks = p.update_stocks()
+        if updated_stocks:
+            for stock in updated_stocks:
+                print(stock.stock_name, stock.timestamp, '----------------------------')
+                score = stock.get_last_news_stock_hype()
+                print('Last news score:', score, 'for', stock.stock_name, 'at', stock.timestamp, "title: ", stock.news[0].title)
+        # wait for 1 minuts 
+
+ 
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # for stock in p.stocks:
+    #     print(stock.stock_name, stock.timestamp, '----------------------------')
+    # #     for news in stock.news:
+    # #         print(news.title, news.date, news.price_before, news.price_after, news.valume_before, news.valume_after)
+    #     if stock.stock_name == 'SMMT':
+    #         print(stock.news)
+
+
+
+
+    # best_stock = p.get_best_stock()
     # print("-------------------------------------------------------------------")
     # print('Currently the best stock to use is', 
     #       best_stock.stock_name, 'with hype score of', round(best_stock.get_stock_hype(), 3))
     # print("-------------------------------------------------------------------")
 
 
-    best_stock_today = p.get_best_stock_today()
-    if best_stock_today:
-        print("-------------------------------------------------------------------")
-        print('Currently the best stock to use today is', 
-            best_stock_today.stock_name, 'with hype score of', round(best_stock_today.get_stock_hype_today(), 3))
-        print("-------------------------------------------------------------------")
-    end_time = time.time()
+    # best_stock_today = p.get_best_stock_today()
+    # if best_stock_today:
+    #     print("-------------------------------------------------------------------")
+    #     print('Currently the best stock to use today is', 
+    #         best_stock_today.stock_name, 'with hype score of', round(best_stock_today.get_stock_hype_today(), 3))
+    #     print("-------------------------------------------------------------------")
+    # end_time = time.time()
 
     # for stock in p.stocks:
     #     print(stock.stock_name, stock.timestamp, '----------------------------')
     #     for news in stock.news:
     #         if news.date.date() == datetime.today().date():
     #             print(news.title, news.date, news.price_before, news.price_after, news.valume_before, news.valume_after)
-    #     for news in stock.news:
-    #         print(news.title, news.date, news.price_before, news.price_after, news.valume_before, news.valume_after)
+    # #     for news in stock.news:
+    # #         print(news.title, news.date, news.price_before, news.price_after, news.valume_before, news.valume_after)
 
-    print('Time taken:', end_time - start_time)
+    # print('Time taken:', end_time - start_time)

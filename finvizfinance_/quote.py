@@ -266,6 +266,41 @@ class finvizfinance:
             return df
         except AttributeError:
             return None
+    
+    # def ticker_last_news(self):
+    #     """Get last news information.
+
+    #     Returns:
+    #         df(pandas.DataFrame): last news information table
+    #     """
+    #     fullview_news_outer = self.soup.find("table", class_="fullview-news-outer")
+    #     rows = fullview_news_outer.find_all("tr")
+
+    #     frame = []
+    #     last_date = ""
+    #     for row in rows:
+    #         try:
+    #             cols = row.find_all("td")
+    #             news_date = cols[0].text
+    #             title = cols[1].a.text
+    #             link = cols[1].a["href"]
+    #             news_time = news_date.split()
+    #             if len(news_time) == 2:
+    #                 last_date = news_time[0]
+    #                 news_time = " ".join(news_time)
+    #             else:
+    #                 news_time = last_date + " " + news_time[0]
+
+    #             news_time = format_datetime(news_time)
+
+    #             info_dict = {"Date": news_time, "Title": title, "Link": link}
+    #             frame.append(info_dict)
+    #         except AttributeError:
+    #             pass
+    #     df = pd.DataFrame(frame)
+    #     self.info["news"] = df
+    #     return df
+    
 
     def ticker_news(self) -> pd.DataFrame:
         """Get news information table.
@@ -275,7 +310,7 @@ class finvizfinance:
         """
         fullview_news_outer = self.soup.find("table", class_="fullview-news-outer")
         rows = fullview_news_outer.find_all("tr")
-
+  
         frame = []
         last_date = ""
         for row in rows:
