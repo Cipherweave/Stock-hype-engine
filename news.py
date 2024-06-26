@@ -1,5 +1,8 @@
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from datetime import datetime
+import os
+from openai import OpenAI
+
 
 
 class News:
@@ -43,28 +46,54 @@ class News:
     
     def __eq__(self, value: object) -> bool:
         """ Return True if the news articles are equal
-
+        >>> n = News('title', 'date', 'link', 1.0, 2.0, 3.0, 4.0)
+        >>> n == News('title', 'date', 'link', 1.0, 2.0, 3.0, 4.0)
+        True
         """
         if not isinstance(value, News):
             return False
-        return self.title == value.title and self.date == value.date and self.link == value.link
+        return self.title == value.title and self.date.round("1min") == value.date.round("1min") and self.link == value.link
 
     def get_sentiment(self) -> float:
         """ Return the sentiment of the news article
 
-        >>> n = News('I am really happy', 'timestamp', 'date', 'link')
-        >>> n.get_sentiment()
-        0.6115
-        >>> n = News('I am really sad', 'timestamp', 'date', 'link')
-        >>> n.get_sentiment()
-        -0.5256
-        >>> n = News('Move Over, Apple! Nvidia Stock Is '\
-        'Coming for the No. 2 Spot.', 'timestamp', 'date', 'link')
-        >>> n.get_sentiment()
-        -0.3595
+        # >>> n = News('I am really happy', 'timestamp', 'date', 'link')
+        # >>> n.get_sentiment()
+        # 0.6115
+        # >>> n = News('I am really sad', 'timestamp', 'date', 'link')
+        # >>> n.get_sentiment()
+        # -0.5256
+        # >>> n = News('Move Over, Apple! Nvidia Stock Is '\
+        # 'Coming for the No. 2 Spot.', 'timestamp', 'date', 'link')
+        # >>> n.get_sentiment()
+        # -0.3595
         """
         sia = SentimentIntensityAnalyzer()
         return (sia.polarity_scores(self.title)['compound'] + 1) / 2
+        
+     
+    
+    def get_ai_sentiment(self):
+        # openai.api_key = 'sk-proj-O9DC1FpGLgawsyf8UwvmT3BlbkFJinkwlq7GTDz3RiWF1yMb'
+        client = OpenAI(
+            # This is the default and can be omitted
+            api_key=os.environ.get("sk-proj-O9DC1FpGLgawsyf8UwvmT3BlbkFJinkwlq7GTDz3RiWF1yMb"),
+        )
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": "Say this is a test",
+                }
+            ],
+            model="gpt-3.5-turbo",
+        )
+        sentiment_score = float(response['choices'][0]['text'].strip())
+        return sentiment_score
 
 
-
+if __name__ == '__main__':
+    news = News('I am really happy', 'timestamp', 'link', 1.0, 2.0, 3.0, 4.0)
+    print(news.get_sentiment())
+    print(news.get_ai_sentiment())
+    

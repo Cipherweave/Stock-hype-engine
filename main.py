@@ -1,12 +1,12 @@
 from urllib.request import urlopen, Request
-from bs4 import BeautifulSoup # type: ignore
+# from bs4 import BeautifulSoup # type: ignore
 from news import News
 from stocks import Stock
 # import finviz
 # from finvizfinance.quote import finvizfinance # type: ignore
 # from finvizfinance.news import News
 from finvizfinance_.quote import finvizfinance
-import yfinance as yf
+# import yfinance as yf
 from datetime import datetime
 import pandas as pd
 from finvizAPI import FinViz
@@ -22,16 +22,20 @@ class Program:
         """ Initialize a program
 
         """
-        stock_finviz = FinViz()
         self.stocks = []
-
-        for stock in stock_list:    
-            
-            all_valumes, all_opens, all_closes, all_dates = stock_finviz.get_all_data('i1', stock)
-
-            stock_finvizfinance = finvizfinance(stock) # object for news
-            news_df = stock_finvizfinance.ticker_news() # news dataframe
+        for stock in stock_list:
             s = Stock(stock) # object for stock
+            self.stocks.append(s)
+
+    
+    def get_past_data(self):
+        
+        stock_finviz = FinViz()
+        for s in self.stocks:    
+            all_valumes, all_opens, all_closes, all_dates = stock_finviz.get_all_data('i1', s.stock_name)
+
+            stock_finvizfinance = finvizfinance(s.stock_name) # object for news
+            news_df = stock_finvizfinance.ticker_news() # news dataframe
             for index, row in news_df.iterrows():
                 news_title = row['Title']
                 news_date = row['Date'].round("1min")
@@ -54,8 +58,7 @@ class Program:
                             s.add_news(news)   
                         break     
             s.timestamp = all_dates[-1]      
-            self.stocks.append(s)
-        
+        print("Past data has been collected by: ", datetime.now().strftime("%H:%M:%S"))
 
     def get_best_stock(self) -> Optional[Stock]:
         """ Return the stock with the highest hype level
@@ -130,11 +133,13 @@ class Program:
                                         all_opens[date_index], 
                                         all_valumes[date_index - 1], 
                                         all_valumes[date_index])
+                            
+                        # print(new_news.title, new_news.date)
                         break
                 # --------------------------------------
                 if new_news is None:
                     break
-                if stock.news == []:
+                elif stock.news == []:
                     new_news_lst.append(new_news)
                 elif new_news == stock.news[-1]:
                     break
@@ -144,12 +149,14 @@ class Program:
             stock.news.extend(new_news_lst)
             stock.timestamp = all_dates[-1]
             if new_news_lst:
-                print('New news added for', stock.stock_name)
+                print(f"\033[92mNew news added to {stock.stock_name} \033[0m")
+                print("new news:", new_news_lst[-1].title, new_news_lst[-1].date)
                 updated_stocks.append(stock)
-        print("All Stocks Updated by: ", datetime.now().strftime("%H:%M:%S"))
+        current_time = datetime.now().strftime("%H:%M:%S")
+        print(f"\033[95mAll stocks updated by: {current_time}\033[0m")
         return updated_stocks
-                        
-                        
+    
+    
 
 
 
@@ -167,18 +174,28 @@ if __name__ == '__main__':
     stock_list = ['NVOS', 'GPS', 'ADRT', 'SMMT', 'WBUY', 'AAPL']
     super_crowded_stocks = ["AAPL", "TSLA", "AMZN", "MSFT", "NVDA", "GOOGL", "META", "NFLX", "AMD", "BA"]
     p = Program(super_crowded_stocks)
+    p.get_past_data()
+    # print(p.stocks[0].stock_name, p.stocks[0].news[-1].title, p.stocks[0].news[-1].get_sentiment())
     # for i in p.stocks:
-    #     print(i.stock_name, i.news[-1].title, "stock time:",i.timestamp, "news time:", i.news[-1].date)
+    #     if i.stock_name == "AAPL":
+    #         for j in i.news:
+    #             print(j.title, j.date, j.get_sentiment())
+    end_time = time.time()
+    print('Time taken:', end_time - start_time)
+        
 
- 
+    
     while True:
+        
         updated_stocks = p.update_stocks()
-        if updated_stocks:
+        if updated_stocks:    
             for stock in updated_stocks:
                 print(stock.stock_name, stock.timestamp, '----------------------------')
                 score = stock.get_last_news_stock_hype()
-                print('Last news score:', score, 'for', stock.stock_name, 'at', stock.timestamp, "title: ", stock.news[0].title)
+                print('Last news score:', score, 'for', stock.stock_name, 'at', stock.timestamp, "title: ", stock.news[-1].title)
+                print(' --> prev news : ', stock.news[-2].title)
         # wait for 1 minuts 
+        time.sleep(60)
 
  
 

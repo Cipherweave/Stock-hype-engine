@@ -41,7 +41,7 @@ class Quote:
         Returns:
             price(float): price of the ticker
         """
-        soup = web_scrap("https://finviz.com/request_quote.ashx?t={}".format(ticker))
+        soup = web_scrap("https://elite.finviz.com/quote.ashx?t={}".format(ticker))
         return soup.text
 
 
