@@ -7,6 +7,7 @@ class Stock:
         self.timestamp = None
         self.stock_name = stock_name
         self.news = []
+        self.active = True
 
     def __str__(self) -> str:
         """ Return a string representation

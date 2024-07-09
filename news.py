@@ -88,7 +88,7 @@ class News:
             ],
             model="gpt-3.5-turbo",
         )
-        sentiment_score = float(response['choices'][0]['text'].strip())
+        sentiment_score = float(chat_completion['choices'][0]['text'].strip())
         return sentiment_score
 
 
