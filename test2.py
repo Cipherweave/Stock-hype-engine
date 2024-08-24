@@ -2,7 +2,7 @@ from openai import OpenAI
 client = OpenAI(api_key='sk-proj-dQP4LNfKld1ElhklGMCMT3BlbkFJY1zOL3dwtuKFX5fsxJRt')
 
 
-assistant = client.beta.assistants.retrieve(assistant_id='asst_JjG4IJDaPXlbKnE7niquQVmp')
+assistant = client.beta.assistants.retrieve(assistant_id='asst_DtEcZIRhdDOCXEgJjbmLude5')
 
 thread = client.beta.threads.create()
 

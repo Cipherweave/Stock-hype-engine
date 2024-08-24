@@ -101,7 +101,7 @@ class FinViz():
         response = requests.get(self.URL, params=payload, timeout=self._timeout, headers=headers)
 
         if response.status_code != 200:
-            print(f'asset type: {self.asset_type}')
+            # print(f'asset type: {self.asset_type}')
             raise Exception("No response from server")
 
         json_response = response.json()
@@ -132,4 +132,5 @@ class FinViz():
 if __name__ == "__main__":
 
     test = FinViz()
-  
+    
+
