@@ -12,6 +12,7 @@ import pandas as pd
 from finvizAPI import FinViz  #IMPORT FINNHUB API, FinVader API
 import time
 from typing import Optional
+import time
 import csv
 import requests
 
