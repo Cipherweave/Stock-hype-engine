@@ -1,9 +1,10 @@
+from main import run_program
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 import csv
 import os
 import threading    
-from main import run_program
+
 
 # Declare global variables
 global root, visualizer_listbox, listbox, tickers

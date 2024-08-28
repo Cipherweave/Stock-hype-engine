@@ -1,5 +1,16 @@
+
+"""This page connects to the Custome AI we created in OpenAI and allows us to chat with it"""
+
+
 from openai import OpenAI
-client = OpenAI(api_key='sk-proj-dQP4LNfKld1ElhklGMCMT3BlbkFJY1zOL3dwtuKFX5fsxJRt')
+try: # Retrieve the API key from the api_key.txt file
+    with open ('api_key.txt', 'r') as file:
+        API_KEY = file.read().strip()
+    client = OpenAI(api_key=API_KEY)
+except Exception: # If the API key is not found, print an error message
+    print("API key not found, AI features will not work")
+    client = None
+    API_KEY = None
 
 
 assistant = client.beta.assistants.retrieve(assistant_id='asst_DtEcZIRhdDOCXEgJjbmLude5')

@@ -1,20 +1,13 @@
-from urllib.request import urlopen, Request
-from bs4 import BeautifulSoup # type: ignore
+# from urllib.request import urlopen, Request
+# from bs4 import BeautifulSoup # type: ignore
 from news import News
 from stocks import Stock
-# import finviz
-# from finvizfinance.quote import finvizfinance # type: ignore
-# from finvizfinance.news import News
-from finvizfinance_.quote import finvizfinance
-# import yfinance as yf
-from datetime import datetime
-import pandas as pd
+from quote import finvizfinance
 from finvizAPI import FinViz  #IMPORT FINNHUB API, FinVader API
-import time
+from datetime import datetime
 from typing import Optional
 import time
 import csv
-import requests
 
 
 class Program:
@@ -28,7 +21,6 @@ class Program:
         for stock in stock_list:
             s = Stock(stock) # object for stock
             self.stocks.append(s)
-
     
     def get_past_data(self, s: Stock):
         
@@ -38,6 +30,7 @@ class Program:
 
         stock_finvizfinance = finvizfinance(s.stock_name) # object for news
         news_df = stock_finvizfinance.ticker_news() # news dataframe
+        
         for index, row in news_df.iterrows():
             news_title = row['Title']
             news_date = row['Date'].round("1min")
@@ -60,60 +53,8 @@ class Program:
                         s.add_news(news)   
                     break     
         s.timestamp = all_dates[-1]      
-        print("Past data has been collected by: ", datetime.now().strftime("%H:%M:%S"))
-        
-    # def get_past_data(self, s: Stock):
-    #     # Fetch historical data using BeautifulSoup
-    #     url = f"https://finviz.com/quote.ashx?t={s.stock_name}"
-    #     response = requests.get(url) # send a get request to the url
-    #     soup = BeautifulSoup(response.content, 'html.parser') # parse the html content of the page
-
-    #     stock_finviz = FinViz() 
-    #     all_valumes, all_opens, all_closes, all_dates = stock_finviz.get_all_data('i1', s.stock_name)
-
-    #     # Scrape news data
-    #     news_table = soup.find('table', class_='fullview-news-outer') # find the news table
-    #     news_df = [] # list to store news data
-    #     if news_table: # if the news table is found
-    #         for row in news_table.find_all('tr'): 
-    #             cols = row.find_all('td') # find all the columns in the row
-    #             news_date = cols[0].text.strip() # get the date of the news
-    #             news_title = cols[1].a.text.strip() # get the title of the news
-    #             news_link = "https://finviz.com/" + cols[1].a['href'] # get the link of the news
-    #             news_df.append({'Date': news_date, 'Title': news_title, 'Link': news_link}) # append the news data to the list
-        
-    #     # Processing news and matching with historical data
-    #     for news_item in news_df:
-    #         news_date = datetime.strptime(news_item['Date'], '%b-%d-%y %I:%M%p').round("1min")
-    #         news_title = news_item['Title']
-    #         news_link = news_item['Link']
-
-    #         for date_index in range(len(all_dates)):
-    #             if news_date == all_dates[date_index]:
-    #                 if len(all_opens) - 1 > date_index:  # if the date is not the last date   
-    #                     news = News(news_title, news_date, news_link, 
-    #                                 all_opens[date_index - 1], 
-    #                                 all_opens[date_index + 1], 
-    #                                 all_valumes[date_index - 1],
-    #                                 all_valumes[date_index + 1])
-    #                     s.add_news(news)                                              
-    #                 else: # if the date is the last date
-    #                     news = News(news_title, news_date, news_link,
-    #                                 all_opens[date_index - 1],
-    #                                 all_opens[date_index], 
-    #                                 all_valumes[date_index - 1], 
-    #                                 all_valumes[date_index])
-    #                     s.add_news(news)   
-    #                 break     
-
-    #     s.timestamp = all_dates[-1]      
-    #     print("Past data has been collected by: ", datetime.now().strftime("%H:%M:%S"))
-        
-    # def get_date_time(self, url):
-        
-
-    
-        
+        print("Past data for", s.stock_name, "has been collected by: ", datetime.now().strftime("%H:%M:%S"))
+         
     def update_stocks(self) -> list[Stock]:
 
         stock_finviz = FinViz()
@@ -236,7 +177,6 @@ def run_program():
                 new_stock = Stock(stock)
                 p.stocks.append(new_stock)
                 p.get_past_data(new_stock)
-                print("here")
         updated_stocks = p.update_stocks()
         with open("results.csv", "a", newline='') as f:
             writer = csv.writer(f)
@@ -248,17 +188,9 @@ def run_program():
                     print(v.title, v.date, v.get_sentiment(), v.get_ai_sentiment(key.stock_name))
                     writer.writerow([v.title, v.date, v.get_sentiment(), v.get_ai_sentiment(key.stock_name)])
         
-        
-        
-        # print(new_stock_list, '-------------------')
-        # print([[x.stock_name, x.active] for x in p.stocks])
-
         time.sleep(5)
     
     
-
-
-
 
 if __name__ == '__main__':
     run_program()

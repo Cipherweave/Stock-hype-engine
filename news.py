@@ -1,10 +1,8 @@
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from datetime import datetime
-import os
 from openai import OpenAI
 
 
-# API_KEY = 'sk-proj-dQP4LNfKld1ElhklGMCMT3BlbkFJY1zOL3dwtuKFX5fsxJRt'
 try:
     with open ('api_key.txt', 'r') as file:
         API_KEY = file.read().strip()
@@ -13,6 +11,8 @@ except:
     print("API key not found, AI features will not work")
     client = None
     API_KEY = None
+
+
 
 class News:
     """ A class to represent a news article
