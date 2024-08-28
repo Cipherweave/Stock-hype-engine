@@ -13,7 +13,7 @@ except Exception: # If the API key is not found, print an error message
     API_KEY = None
 
 
-assistant = client.beta.assistants.retrieve(assistant_id='asst_DtEcZIRhdDOCXEgJjbmLude5')
+assistant = client.beta.assistants.retrieve(assistant_id='asst_shj1iUIPJa5TGGcy6OXuIEEp')
 
 thread = client.beta.threads.create()
 

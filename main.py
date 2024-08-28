@@ -6,8 +6,19 @@ from quote import finvizfinance
 from finvizAPI import FinViz  #IMPORT FINNHUB API, FinVader API
 from datetime import datetime
 from typing import Optional
+from openai import OpenAI
 import time
 import csv
+
+try: # Retrieve the API key from the api_key.txt file
+    with open ('api_key.txt', 'r') as file:
+        API_KEY = file.read().strip()
+    client = OpenAI(api_key="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")
+except Exception: # If the API key is not found, print an error message
+    print("API key not found, AI features will not work")
+    client = None
+    API_KEY = None
+
 
 
 class Program:
@@ -54,6 +65,9 @@ class Program:
                     break     
         s.timestamp = all_dates[-1]      
         print("Past data for", s.stock_name, "has been collected by: ", datetime.now().strftime("%H:%M:%S"))
+        v = s.news[-1]
+        print(v.title, v.date, v.get_sentiment(), v.get_ai_sentiment(s.stock_name, client))
+    
          
     def update_stocks(self) -> list[Stock]:
 
@@ -185,8 +199,8 @@ def run_program():
                 writer.writerow([key.stock_name])  # Write stock name
                 
                 for v in value:
-                    print(v.title, v.date, v.get_sentiment(), v.get_ai_sentiment(key.stock_name))
-                    writer.writerow([v.title, v.date, v.get_sentiment(), v.get_ai_sentiment(key.stock_name)])
+                    print(v.title, v.date, v.get_sentiment(), v.get_ai_sentiment(key.stock_name, client))
+                    writer.writerow([v.title, v.date, v.get_sentiment(), v.get_ai_sentiment(key.stock_name, client)])
         
         time.sleep(5)
     

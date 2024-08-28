@@ -3,15 +3,6 @@ from datetime import datetime
 from openai import OpenAI
 
 
-try:
-    with open ('api_key.txt', 'r') as file:
-        API_KEY = file.read().strip()
-    client = OpenAI(api_key=API_KEY)
-except:
-    print("API key not found, AI features will not work")
-    client = None
-    API_KEY = None
-
 
 
 class News:
@@ -82,11 +73,11 @@ class News:
         
      
     
-    def get_ai_sentiment(self, ticker) -> str:
+    def get_ai_sentiment(self, ticker, client) -> str:
         try:
             assistant = client.beta.assistants.retrieve(assistant_id='asst_shj1iUIPJa5TGGcy6OXuIEEp')
             thread = client.beta.threads.create()
-            user_input = str(self.url) + " " + str(ticker)
+            user_input = str(self.link) + " " + str(ticker)
             message = client.beta.threads.messages.create(
             thread_id=thread.id,
             role="user",
