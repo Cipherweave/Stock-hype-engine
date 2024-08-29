@@ -65,8 +65,8 @@ class Program:
                     break     
         s.timestamp = all_dates[-1]      
         print("Past data for", s.stock_name, "has been collected by: ", datetime.now().strftime("%H:%M:%S"))
-        v = s.news[-1]
-        print(v.title, v.date, v.get_sentiment(), v.get_ai_sentiment(s.stock_name, client))
+        # v = s.news[-1]
+        # print(v.title, v.date, v.get_sentiment(), v.get_ai_sentiment(s.stock_name, client))
     
          
     def update_stocks(self) -> list[Stock]:
