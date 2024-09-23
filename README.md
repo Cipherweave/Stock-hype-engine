@@ -12,6 +12,17 @@ it autmaticly retreves news from finviz website and use NLTK and custom Open Ai 
 - pip install openai
 
 # Use
+All the files are directly or indirectly used in main.py so please dont change anything unless you like ehnhance it. 
+
+main.py: Runs the main application which takes stocks.csv as input and gives results.csv as output.
+visuals.py: Runs the main.py but with gui.
+stocks.py: Stock object.
+news.py: News object.
+qoute.py: An overwriten file from Finfizfinance library that extracts news from finance websites. 
+finvizAPI.py: I use this file to get the ticker price and its corresponding time. (Refrence to one of Dr Raahemifar's students that made this file) 
+api_key: If you wish to use the AI sentiment analysis, please paste your Open Ai api key on the first line. 
+
+
 
 Run visuals to see the interface.
 
