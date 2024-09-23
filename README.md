@@ -6,10 +6,10 @@ it autmaticly retreves news from finviz website and use NLTK and custom Open Ai 
 ## INSTALLMENTS
 
 - pip install nltk
-  put this on the code and run it:
+- pip install openai
+- put this on the code and run it:
   import nltk
   nltk.download('vader_lexicon')
-- pip install openai
 
 # Use
 All the files are directly or indirectly used in main.py so please dont change anything unless you like ehnhance it. 
