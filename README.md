@@ -24,7 +24,7 @@ All the files are directly or indirectly used in main.py so please dont change a
 - finvizAPI.py: I use this file to get the ticker price and its corresponding time. (Refrence to one of Dr Raahemifar's students that made this file) 
 - api_key: If you wish to use the AI sentiment analysis, please paste your Open Ai api key on the first line. 
 
-
+[Youtube Demo](https://www.youtube.com/watch?v=7pJ_AW-31C8)
 
 Run visuals to see the interface.
 
