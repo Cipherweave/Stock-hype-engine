@@ -5,6 +5,7 @@ it autmaticly retreves news from finviz website and use NLTK and custom Open Ai 
 
 ## INSTALLMENTS
 
+In terminal: 
 - pip install nltk
 - pip install openai
 
